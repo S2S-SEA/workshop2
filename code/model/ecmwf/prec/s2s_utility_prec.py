@@ -52,6 +52,8 @@ def read_method(cur_data_path,index):
     data_lon = nc.variables['longitude'][:]
     if index == 'TRMM':
        pdata = prcpvar[:,:,:,:]    #week,year,lat,lon
+    if index == 'TRMM_Climo':
+       pdata = prcpvar[:,:,:]    #week,lat,lon
     if index == 'ECMWF':
        pdata = prcpvar[:,:,:,:,:]    #step,week,year,lat,lon
     if index == 'ECMWF_Daily':
@@ -291,11 +293,12 @@ def plot_verification(data_0,lat_0,lon_0,lat_down,lat_up,lon_left,lon_right,grid
 
     #Create discrete colormap
     if index == 'CORA' or index == 'HSS':
-       cmap = mpl.colors.ListedColormap([(0.7451,0.8627,1),(0.9216,0.9216,0.9216),(1,0.9804,0.4902),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1529,0.1529),(0.8235,0,0),(0.5961,0,0),(0.4510,0,0),(0.2941,0,0)])
-       bounds = [-1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+        cmap = mpl.colors.ListedColormap([(0.7451,0.8627,1),(0.9216,0.9216,0.9216),(1,0.9804,0.4902),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1529,0.1529),(0.8235,0,0),(0.5961,0,0),(0.4510,0,0),(0.2941,0,0),(1,1,1)])
+        bounds = [-1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,99]
     if index == 'MSSS':
-       cmap = mpl.colors.ListedColormap([(0.6863,0.6863,1),(0.7451,0.8627,1),(0.8235,0.8235,0.8235),(1,0.9294,0.9294),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1569,0.1569),(0.8235,0,0),(0.5961,0,0)])
-       bounds = [data.min(),-1,0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,1]
+        cmap = mpl.colors.ListedColormap([(0.6863,0.6863,1),(0.7451,0.8627,1),(0.8235,0.8235,0.8235),(1,0.9294,0.9294),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1569,0.1569),(0.8235,0,0),(0.5961,0,0),(1,1,1)])
+        bounds = [data.min(),-1,0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,1,99]
+
     norm = mpl.colors.BoundaryNorm(bounds,cmap.N)
 
     #Plotting
