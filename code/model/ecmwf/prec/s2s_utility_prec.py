@@ -56,7 +56,7 @@ def read_method(cur_data_path,index):
        pdata = prcpvar[:,:,:]    #week,lat,lon
     if index == 'ECMWF':
        pdata = prcpvar[:,:,:,:,:]    #step,week,year,lat,lon
-    if index == 'ECMWF_Daily':
+    if index == 'ECMWF_Total':
        pdata = prcpvar[:,:,:,:,:,:,:]    #step,week,year,days,member,lat,lon
     if index == 'ECMWF_Mask':
        pdata = prcpvar[:,:,:,:]    #step,week,lat,lon
@@ -149,7 +149,7 @@ def write_ec(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_lat,ec_lon
        rainfall[:,:,:,:] = ec_data
     nc.close()
 
-def write_ec_daily(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,ec_member,ec_lat,ec_lon,index):
+def write_ec_data(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,ec_member,ec_lat,ec_lon,index):
 
     #Create output path
     if os.path.exists(ec_output) == False:
@@ -170,7 +170,7 @@ def write_ec_daily(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,
     weeks = nc.createVariable('week','f4',('week',))
     latitudes = nc.createVariable('latitude','f4',('latitude',))
     longitudes = nc.createVariable('longitude','f4',('longitude',))
-    if index == 'Daily':
+    if index == 'Total':
         members = nc.createVariable('member','f4',('member',))
         years = nc.createVariable('year','f4',('year',))
         days = nc.createVariable('day','f4',('day',))
@@ -189,7 +189,7 @@ def write_ec_daily(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,
     latitudes[:] = ec_lat
     longitudes[:] = ec_lon
     weeks[:] = ec_week
-    if index == 'Daily':
+    if index == 'Total':
         days[:] = ec_day
         members[:] = ec_member
         years[:] = ec_year
@@ -250,7 +250,7 @@ def plot_processing(data_0,lat_0,lon_0,lat_down,lat_up,lon_left,lon_right,grid_l
         cbar = m.colorbar(cs,location='bottom',pad="5%", ticks=range(data_range[1]+1))
         cbar.set_label('Number of days',fontsize=13)
     if index == 'Anomaly':
-        cbar = m.colorbar(cs,location='bottom',pad="5%", ticks=range(data_range[0],data_range[1]+1))
+        cbar = m.colorbar(cs,location='bottom',pad="5%", ticks=np.arange(data_range[0],data_range[1]+1,2))
         cbar.set_label('Number of days Anomaly',fontsize=13)
 
     #Add title and save figures

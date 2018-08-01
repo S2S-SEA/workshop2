@@ -52,9 +52,11 @@ def read_method(cur_data_path,index):
     data_lon = nc.variables['longitude'][:]
     if index == 'TRMM':
        pdata = prcpvar[:,:,:,:]    #week,year,lat,lon
+    if index == 'TRMM_Climo':
+       pdata = prcpvar[:,:,:]    #week,lat,lon
     if index == 'ECMWF':
        pdata = prcpvar[:,:,:,:,:]    #step,week,year,lat,lon
-    if index == 'ECMWF_Daily':
+    if index == 'ECMWF_Total':
        pdata = prcpvar[:,:,:,:,:,:,:]    #step,week,year,days,member,lat,lon
     if index == 'ECMWF_Mask':
        pdata = prcpvar[:,:,:,:]    #step,week,lat,lon
@@ -147,7 +149,7 @@ def write_ec(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_lat,ec_lon
        rainfall[:,:,:,:] = ec_data
     nc.close()
 
-def write_ec_daily(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,ec_member,ec_lat,ec_lon,index):
+def write_ec_data(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,ec_member,ec_lat,ec_lon,index):
 
     #Create output path
     if os.path.exists(ec_output) == False:
@@ -168,7 +170,7 @@ def write_ec_daily(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,
     weeks = nc.createVariable('week','f4',('week',))
     latitudes = nc.createVariable('latitude','f4',('latitude',))
     longitudes = nc.createVariable('longitude','f4',('longitude',))
-    if index == 'Daily':
+    if index == 'Total':
         members = nc.createVariable('member','f4',('member',))
         years = nc.createVariable('year','f4',('year',))
         days = nc.createVariable('day','f4',('day',))
@@ -187,7 +189,7 @@ def write_ec_daily(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,
     latitudes[:] = ec_lat
     longitudes[:] = ec_lon
     weeks[:] = ec_week
-    if index == 'Daily':
+    if index == 'Total':
         days[:] = ec_day
         members[:] = ec_member
         years[:] = ec_year
@@ -242,13 +244,13 @@ def plot_processing(data_0,lat_0,lon_0,lat_down,lat_up,lon_left,lon_right,grid_l
     cs.set_clim(data_range[0],data_range[1])
     #Add colorbar
     if index == 'Climatology_Mask':
-        cbar = m.colorbar(cs,location='bottom',pad="5%", ticks=range(data_range[1]+1))
+        cbar = m.colorbar(cs,location='bottom',pad="5%")
         cbar.set_label('20th Percentile Rainfall (mm/day)',fontsize=13)
     if index == 'Climatology' or index == 'Total':
         cbar = m.colorbar(cs,location='bottom',pad="5%", ticks=range(data_range[1]+1))
         cbar.set_label('Number of days',fontsize=13)
     if index == 'Anomaly':
-        cbar = m.colorbar(cs,location='bottom',pad="5%", ticks=range(data_range[0],data_range[1]+1))
+        cbar = m.colorbar(cs,location='bottom',pad="5%", ticks=np.arange(data_range[0],data_range[1]+1,2))
         cbar.set_label('Number of days Anomaly',fontsize=13)
 
     #Add title and save figures
@@ -291,11 +293,12 @@ def plot_verification(data_0,lat_0,lon_0,lat_down,lat_up,lon_left,lon_right,grid
 
     #Create discrete colormap
     if index == 'CORA' or index == 'HSS':
-       cmap = mpl.colors.ListedColormap([(0.7451,0.8627,1),(0.9216,0.9216,0.9216),(1,0.9804,0.4902),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1529,0.1529),(0.8235,0,0),(0.5961,0,0),(0.4510,0,0),(0.2941,0,0)])
-       bounds = [-1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+        cmap = mpl.colors.ListedColormap([(0.7451,0.8627,1),(0.9216,0.9216,0.9216),(1,0.9804,0.4902),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1529,0.1529),(0.8235,0,0),(0.5961,0,0),(0.4510,0,0),(0.2941,0,0),(1,1,1)])
+        bounds = [-1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,99]
     if index == 'MSSS':
-       cmap = mpl.colors.ListedColormap([(0.6863,0.6863,1),(0.7451,0.8627,1),(0.8235,0.8235,0.8235),(1,0.9294,0.9294),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1569,0.1569),(0.8235,0,0),(0.5961,0,0)])
-       bounds = [data.min(),-1,0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,1]
+        cmap = mpl.colors.ListedColormap([(0.6863,0.6863,1),(0.7451,0.8627,1),(0.8235,0.8235,0.8235),(1,0.9294,0.9294),(1,0.8235,0.8235),(1,0.6863,0.6863),(1,0.4902,0.4902),(1,0.1569,0.1569),(0.8235,0,0),(0.5961,0,0),(1,1,1)])
+        bounds = [data.min(),-1,0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,1,99]
+
     norm = mpl.colors.BoundaryNorm(bounds,cmap.N)
 
     #Plotting

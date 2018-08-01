@@ -9,6 +9,7 @@ config.read('../../../../code/settings.ini')
 target_month = config.getint('Process','target_month')
 threshold = config.getint('Process','threshold')
 method = config.get('Process','method') #NDD=Dry NWD=Wet
+d_thr = [-1,1,3,5,7]
 process_hss = True
 
 #---------------------------------------------------
@@ -68,25 +69,10 @@ if process_hss == True:
                a = ec_total[i_step,i_week,i_year,:,:]
                b = trmm_total[i_week,i_year,:,:]
 
-               matrix[0,0,:,:] = matrix[0,0,:,:] + (np.where(a<=1,1,0) & np.where(a>-1,1,0) & np.where(b<=1,1,0) & np.where(b>-1,1,0))
-               matrix[1,0,:,:] = matrix[1,0,:,:] + (np.where(a<=3,1,0) & np.where(a>1,1,0) & np.where(b<=1,1,0) & np.where(b>-1,1,0))
-               matrix[2,0,:,:] = matrix[2,0,:,:] + (np.where(a<=5,1,0) & np.where(a>3,1,0) & np.where(b<=1,1,0) & np.where(b>-1,1,0))
-               matrix[3,0,:,:] = matrix[3,0,:,:] + (np.where(a<=7,1,0) & np.where(a>5,1,0) & np.where(b<=1,1,0) & np.where(b>-1,1,0))
-
-               matrix[0,1,:,:] = matrix[0,1,:,:] + (np.where(a<=1,1,0) & np.where(a>-1,1,0) & np.where(b<=3,1,0) & np.where(b>1,1,0))
-               matrix[1,1,:,:] = matrix[1,1,:,:] + (np.where(a<=3,1,0) & np.where(a>1,1,0) & np.where(b<=3,1,0) & np.where(b>1,1,0))
-               matrix[2,1,:,:] = matrix[2,1,:,:] + (np.where(a<=5,1,0) & np.where(a>3,1,0) & np.where(b<=3,1,0) & np.where(b>1,1,0))
-               matrix[3,1,:,:] = matrix[3,1,:,:] + (np.where(a<=7,1,0) & np.where(a>5,1,0) & np.where(b<=3,1,0) & np.where(b>1,1,0))
-
-               matrix[0,2,:,:] = matrix[0,2,:,:] + (np.where(a<=1,1,0) & np.where(a>-1,1,0) & np.where(b<=5,1,0) & np.where(b>3,1,0))
-               matrix[1,2,:,:] = matrix[1,2,:,:] + (np.where(a<=3,1,0) & np.where(a>1,1,0) & np.where(b<=5,1,0) & np.where(b>3,1,0))
-               matrix[2,2,:,:] = matrix[2,2,:,:] + (np.where(a<=5,1,0) & np.where(a>3,1,0) & np.where(b<=5,1,0) & np.where(b>3,1,0))
-               matrix[3,2,:,:] = matrix[3,2,:,:] + (np.where(a<=7,1,0) & np.where(a>5,1,0) & np.where(b<=5,1,0) & np.where(b>3,1,0))
-
-               matrix[0,3,:,:] = matrix[0,3,:,:] + (np.where(a<=1,1,0) & np.where(a>-1,1,0) & np.where(b<=7,1,0) & np.where(b>5,1,0))
-               matrix[1,3,:,:] = matrix[1,3,:,:] + (np.where(a<=3,1,0) & np.where(a>1,1,0) & np.where(b<=7,1,0) & np.where(b>5,1,0))
-               matrix[2,3,:,:] = matrix[2,3,:,:] + (np.where(a<=5,1,0) & np.where(a>3,1,0) & np.where(b<=7,1,0) & np.where(b>5,1,0))
-               matrix[3,3,:,:] = matrix[3,3,:,:] + (np.where(a<=7,1,0) & np.where(a>5,1,0) & np.where(b<=7,1,0) & np.where(b>5,1,0))
+               for i_row in range(0,matrix.shape[0]):
+                   for i_col in range(0,matrix.shape[1]):
+                       mask = (np.where(a<=d_thr[i_row+1],1,0) & np.where(a>d_thr[i_row],1,0) & np.where(b<=d_thr[i_col+1],1,0) & np.where(b>d_thr[i_col],1,0))
+                       matrix[i_row,i_col,:,:] = matrix[i_row,i_col,:,:] + mask
 
        total_count = (i_week+1) * (i_year+1)
        total_hit = np.trace(matrix, axis1=0, axis2=1) #sum along main diagonal of the array
@@ -100,8 +86,8 @@ if process_hss == True:
        hss = (total_count * total_hit - cross_product)/denominator
 
        #Plot HSS
-       title_str =  method + ' in a week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_' + method + '.png'
+       title_str =  method + ' in 1-week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_Weekly_' + method + '.png'
        s2s_utility_prec.plot_verification(hss,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'HSS')
 
        #Plot HSS (with TRMM climatology dry mask)
@@ -110,6 +96,6 @@ if process_hss == True:
        elif method == 'NWD':
            hss[trmm_climo < 1] = 99 # apply TRMM climatology dry mask, with dummy value of 99
 
-       title_str = method + ' in a week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_' + method + '_drymask.png'
+       title_str = method + ' in 1-week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_Weekly_' + method + '_drymask.png'
        s2s_utility_prec.plot_verification(hss,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'HSS')

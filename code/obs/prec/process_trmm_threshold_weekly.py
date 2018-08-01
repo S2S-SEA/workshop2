@@ -66,24 +66,24 @@ for i_date in range(0,len(week_initial_date)):
             trmm_data_repack[i_date,i_year,i_day,:,:] = trmm_data_ec_resol[time_index+i_day,:,:] #broadcasting ,:,
 
 #---------------------------------------------------------------------
-# 3. Generating TRMM daily rainfall 'XXth percentile climatology mask'
+# 3. Generating TRMM weekly rainfall 'XXth percentile climatology mask'
 #---------------------------------------------------------------------
-print ('Preparing TRMM daily rainfall ' + str(threshold) + 'th percentile climatology mask...')
+print ('Preparing TRMM weekly rainfall ' + str(threshold) + 'th percentile climatology mask...')
 trmm_climatology_mask = np.empty([len(week_initial_date),len(ec_lat),len(ec_lon)])
 trmm_climatology_mask = np.percentile(trmm_data_repack, threshold, axis=(1,2)) #axis1:years axis2:7 days in a week
-print ('Mean of TRMM daily rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.mean(trmm_climatology_mask)))
-print ('Median of TRMM daily rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.median(trmm_climatology_mask)))
+print ('Mean of TRMM weekly rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.mean(trmm_climatology_mask)))
+print ('Median of TRMM weekly rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.median(trmm_climatology_mask)))
 print ('Done!')
 
 #--------------------------------------------------------------------------------
 # 4. This part is to calculate TRMM NDD/NWD in a week (climatology/total/anomaly)
 #--------------------------------------------------------------------------------
-#if method == 'NDD':
-    #Convert based on the TRMM daily 'Rainfall XXth percentile climatology mask' with minimum value of XXmm/day (XX=dynamic?)
-    #trmm_climatology_mask[trmm_climatology_mask < 1] = 1
-#elif method == 'NWD':
-    #Convert based on the TRMM daily 'Rainfall XXth percentile climatology mask' with maximum value of XXmm/day (XX=dynamic?)
-    #trmm_climatology_mask[trmm_climatology_mask > 10] = 10
+if method == 'NDD':
+    #Convert based on the TRMM weekly 'Rainfall XXth percentile climatology mask' with minimum value of XXmm/day (XX=dynamic?)
+    trmm_climatology_mask[trmm_climatology_mask < 1] = 1
+elif method == 'NWD':
+    #Convert based on the TRMM weekly 'Rainfall XXth percentile climatology mask' with maximum value of XXmm/day (XX=dynamic?)
+    trmm_climatology_mask[trmm_climatology_mask < 1] = 1
 #else:
     #print('Please check that you type the correct method in your setting file.')
 
@@ -149,16 +149,16 @@ if plot_figure == True:
    end_date = start_date[:2] + "%02d"%(int(start_date[-2:])+6)
 
    data_range = [0,7]    #change data range for plotting accordingly
-   title_str = 'TRMM ' + method + ' Climatology' + '\n' + start_date + '-' + end_date
-   name_str = plot_dir + 'TRMM_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Climatology_' + method + '.png'
+   title_str = 'TRMM ' + method + ' Weekly Climatology' + '\n' + start_date + '-' + end_date
+   name_str = plot_dir + 'TRMM_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Climatology_Weekly_' + method + '.png'
    s2s_utility_prec.plot_processing(trmm_climatology[target_week,:,:],ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology')
 
    data_range = [0,7]
-   title_str = 'TRMM ' + method + ' Total' + '\n' + str(target_year) + ' ' + start_date + '-' + end_date
-   name_str = plot_dir + 'TRMM_' + str(target_year) + '_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Total_' + method + '.png'
+   title_str = 'TRMM ' + method + ' Weekly Total' + '\n' + str(target_year) + ' ' + start_date + '-' + end_date
+   name_str = plot_dir + 'TRMM_' + str(target_year) + '_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Total_Weekly_' + method + '.png'
    s2s_utility_prec.plot_processing(trmm_total[target_week,target_year-start_year,:,:],ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Total')
 
    data_range = [-7,7]
-   title_str = 'TRMM ' + method + ' Anomaly' + '\n' + str(target_year) + ' ' + start_date + '-' + end_date
-   name_str = plot_dir + 'TRMM_' + str(target_year) + '_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Anomaly_' + method + '.png'
+   title_str = 'TRMM ' + method + ' Weekly Anomaly' + '\n' + str(target_year) + ' ' + start_date + '-' + end_date
+   name_str = plot_dir + 'TRMM_' + str(target_year) + '_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Anomaly_Weekly_' + method + '.png'
    s2s_utility_prec.plot_processing(trmm_anomaly[target_week,target_year-start_year,:,:],ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Anomaly')

@@ -75,8 +75,8 @@ if process_cora == True:
        cora = sum_ec_trmm/(sum_ec*sum_trmm)**(1.0/2)
 
        #Plot CORA
-       title_str = method + ' in a week (Anomaly): CORA' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_CORA_' + method + '.png'
+       title_str = method + ' in 1-week (Anomaly): CORA' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_CORA_Weekly_' + method + '.png'
        s2s_utility_prec.plot_verification(cora,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'CORA')
 
        #Plot CORA (with TRMM climatology dry mask)
@@ -85,8 +85,8 @@ if process_cora == True:
        elif method == 'NWD':
            cora[trmm_climo < 1] = 99 # apply TRMM climatology dry mask, with dummy value of 99
 
-       title_str = method + ' in a week (Anomaly): CORA' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_CORA_' + method + '_drymask.png'
+       title_str = method + ' in 1-week (Anomaly): CORA' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_CORA_Weekly_' + method + '_drymask.png'
        s2s_utility_prec.plot_verification(cora,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'CORA')
 
 if process_msss == True:
@@ -104,8 +104,8 @@ if process_msss == True:
        msss = 1 - sum_ec_trmm/sum_trmm
 
        #Plot MSSS
-       title_str = method + ' in a week (Anomaly): MSSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_MSSS_' + method + '.png'
+       title_str = method + ' in 1-week (Anomaly): MSSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_MSSS_Weekly_' + method + '.png'
        s2s_utility_prec.plot_verification(msss,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'MSSS')
 
        #Plot MSSS (with TRMM climatology dry mask)
@@ -114,6 +114,6 @@ if process_msss == True:
        elif method == 'NWD':
            msss[trmm_climo < 1] = 99 # apply TRMM climatology dry mask, with dummy value of 99
 
-       title_str = method + ' in a week (Anomaly): MSSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_MSSS_' + method + '_drymask.png'
+       title_str = method + ' in 1-week (Anomaly): MSSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_MSSS_Weekly_' + method + '_drymask.png'
        s2s_utility_prec.plot_verification(msss,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'MSSS')

@@ -6,7 +6,7 @@ with the 1 ECMWF's cf.
 & re-packed to 7 dimensions[step:week:year:days:members:lat:lon] (step = lead_times,
 week = "full" weeks, days = 7 days in a week, members = ensemble members). The repacked
 dataset is then saved for next processing step.
-3. Also the daily rainfall 'XXth percentile climatology mask' (bias-correct for each
+3. Also the weekly rainfall 'XXth percentile climatology mask' (bias-correct for each
 grid points, for each "full" weeks and for each lead times) is generated from this re-packed dataset.
 '''
 import netCDF4
@@ -43,7 +43,7 @@ ec_lon = nc.variables['longitude'][:]
 nc.close()
 
 # Create an array to store the repacked daily data based on lead_time 1/2/3/4
-ec_daily = np.empty([model_step,len(week_initial_date),end_year-start_year+1,days,members,len(ec_lat),len(ec_lon)]) #step,week,year,days,members,lat,lon
+ec_data = np.empty([model_step,len(week_initial_date),end_year-start_year+1,days,members,len(ec_lat),len(ec_lon)]) #step,week,year,days,members,lat,lon
 
 # For each initial date file
 for i_date in range(0,len(init_date)):
@@ -111,19 +111,19 @@ for i_date in range(0,len(init_date)):
                 #print ('iweek: ' + str(i_week))
                 #print ('iday: ' + str(i_day))
                 #print (7*(i_step+1)-days+i_day)
-                ec_daily[i_step,i_week,:,i_day,:,:,:] = arr_daily[:,7*(i_step+1)-days+i_day,:,:,:] #broadcasting ,:,
+                ec_data[i_step,i_week,:,i_day,:,:,:] = arr_daily[:,7*(i_step+1)-days+i_day,:,:,:] #broadcasting ,:,
 
     ds_pf.close()
     ds_cf.close()
 
 #------------------------------------------------------------------------
-# 3. Generate the ECMWF daily rainfall 'XXth percentile climatology mask'
+# 3. Generate the ECMWF weekly rainfall 'XXth percentile climatology mask'
 #------------------------------------------------------------------------
-print ('Preparing ECMWF daily rainfall ' + str(threshold) + 'th percentile climatology mask...')
+print ('Preparing ECMWF weekly rainfall ' + str(threshold) + 'th percentile climatology mask...')
 ec_climatology_mask = np.empty([model_step,len(week_initial_date),len(ec_lat),len(ec_lon)])    #step,week,lat,lon
-ec_climatology_mask = np.percentile(ec_daily, threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
-print ('Mean of ECMWF daily rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.mean(ec_climatology_mask)))
-print ('Median of ECMWF daily rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.median(ec_climatology_mask)))
+ec_climatology_mask = np.percentile(ec_data, threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
+print ('Mean of ECMWF weekly rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.mean(ec_climatology_mask)))
+print ('Median of ECMWF weekly rainfall ' + str(threshold) + 'th percentile climatology mask: ' + str(np.median(ec_climatology_mask)))
 print ('Done!')
 
 #--------------------------------------------------------------------------------------
@@ -138,12 +138,12 @@ ec_year = range(start_year,end_year+1)
 ec_day = range(0,days)
 ec_member = range(0,members)
 
-ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_Total_Daily.nc'
-s2s_utility_prec.write_ec_daily(ec_output,ec_filename,ec_daily,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Daily')
+ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_Total_Weekly.nc'
+s2s_utility_prec.write_ec_data(ec_output,ec_filename,ec_data,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Total')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
-ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_threshold' + str(threshold) + '_Climatology_Mask_Daily.nc'
-s2s_utility_prec.write_ec_daily(ec_output,ec_filename,ec_climatology_mask,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Climatology')
+ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_threshold' + str(threshold) + '_Climatology_Mask_Weekly.nc'
+s2s_utility_prec.write_ec_data(ec_output,ec_filename,ec_climatology_mask,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Climatology')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
 #-------------------------------------------------------------------------------------
@@ -168,13 +168,13 @@ if plot_figure == True:
 
    prec_lat = prec_lat[::-1]    #reverse lat for matplotlib's plotting convention
 
-   #Plot ECMWF daily Rainfall XXth percentile climatology mask
+   #Plot ECMWF weekly Rainfall XXth percentile climatology mask
    for i_step in range(0,model_step):
        start_date = week_initial_date[target_week]
        end_date = "%02d"%target_month + "%02d"%(int(start_date[-2:])+6)
 
        data_range = [0,int(np.max(ec_climatology_mask))]    #change data range for plotting accordingly
-       title_str = 'ECMWF Daily Rainfall ' + str(threshold) + 'th Percentile Climatology' + '\n' + start_date + '-' + end_date + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + start_date + '-' + end_date + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_Climatology_Mask.png'
+       title_str = 'ECMWF Weekly Rainfall ' + str(threshold) + 'th Percentile Climatology' + '\n' + start_date + '-' + end_date + ' (LT' + str(i_step+1) + ')'
+       name_str = plot_dir + 'ECMWF_' + start_date + '-' + end_date + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_Climatology_Mask_Weekly.png'
        #reverse lat for matplotlib's plotting convention
        s2s_utility_prec.plot_processing(ec_climatology_mask[i_step,target_week,::-1,:],prec_lat,prec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology_Mask')

@@ -117,8 +117,8 @@ if process_hss == True:
        hss = (total_count * total_hit - cross_product)/denominator
 
        #Plot HSS
-       title_str =  method + ' in a week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_' + method + '.png'
+       title_str =  method + ' in 1-week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ')'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_Weekly_' + method + '.png'
        s2s_utility_prec.plot_verification(hss,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'HSS')
 
        #Plot HSS (with TRMM climatology dry mask)
@@ -127,6 +127,6 @@ if process_hss == True:
        elif method == 'NWD':
            hss[trmm_climo < 1] = 99 # apply TRMM climatology dry mask, with dummy value of 99
 
-       title_str = method + ' in a week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
-       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_' + method + '_drymask.png'
+       title_str = method + ' in 1-week (Total): HSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
+       name_str = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_HSS_Weekly_' + method + '_drymask.png'
        s2s_utility_prec.plot_verification(hss,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'HSS')
