@@ -9,7 +9,8 @@ config = configparser.ConfigParser()
 config.read('../../../code/settings.ini')
 
 '''
-This script loads the TRMM data as downloaded by IRI data library and prepares the number of dry days (total per model week, the climatology, and the anomaly per week). 
+This script loads the TRMM data as downloaded by IRI data library and prepares the number of dry days 
+(total per model week, the climatology, and the anomaly per week). 
 It can plot either at the orginial resolution or the model resolution
 
 '''
