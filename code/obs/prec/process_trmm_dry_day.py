@@ -4,22 +4,29 @@ import netCDF4
 import calendar
 from scipy import interpolate
 import s2s_utility_prec as s2s
+import configparser
+config = configparser.ConfigParser()
+config.read('../../../code/settings.ini')
+
 '''
-This script loads the TRMM data as downloaded by IRI data library and prepares the weekly data. 
+This script loads the TRMM data as downloaded by IRI data library and prepares the number of dry days (total per model week, the climatology, and the anomaly per week). 
 It can plot either at the orginial resolution or the model resolution
 
 '''
+#-------------------------------------------------------
 #Initial setup
-week_initial_date = ['1204','1207','1211','1214','1218','1221','1225']
-target_month = 12
+#-------------------------------------------------------
+#These values are changed in the settings file
+week_initial_date = config.get('Process','week_initial_date').split(',')
+target_month = config.getint('Process','target_month')
+threshold = config.getint('Process','threshold') 
+
+keep_original_resolution = False
 days = 7
 start_year = 1998
 end_year = 2014
-threshold = 20
-keep_original_resolution = True
 
-#Define ECMWF input path
-ec_input = '../../../data/model/ecmwf/prec'
+
 #Options:
 # Set print_data = 0 if nothing to print, otherwise enter [year, latitude location, longitude location]
 print_data = [2013, 6, 90]
@@ -30,29 +37,25 @@ trmm_filename = 'TRMM_Daily_' + calendar.month_abbr[target_month] + '_1998-2014.
 cur_trmm_path = trmm_input + '/' + trmm_filename
 print(cur_trmm_path)
 
+#Define ECMWF input path
+ec_input = '../../../data/model/ecmwf/prec'
+
 #Define ECMWF output path and plot path
 trmm_output = '../../../data/obs/prec/'
 plot_dir = '../../../plot/obs/'
 
 #Choose to output or display data
 data_output = True
-plot_figure = False
+plot_figure = True
 
+if plot_figure: 
 #Define target week and year
-target_week = 6    #week number starting from 0
-target_year = 2014
+	target_week = config.getint('Plot','target_week')    #week number starting from 0
+	target_year = config.getint('Plot','target_year')
 
-#Define the domain for display
-lat_down = -20
-lat_up = 30
-lon_left = 80
-lon_right = 150
-grid_lat = 10
-grid_lon = 10
-
-#--------------------------------------------------------------------------------------
-# Processing below
-#--------------------------------------------------------------------------------------
+#----------------------------------------------------------------
+# Below here is all Processing
+#----------------------------------------------------------------
 
 #Read TRMM dataset
 trmm_time,trmm_lat,trmm_lon,trmm_data = s2s.read_trmm(cur_trmm_path)
@@ -61,9 +64,9 @@ trmm_time,trmm_lat,trmm_lon,trmm_data = s2s.read_trmm(cur_trmm_path)
 if print_data!=0:
     X_trmm,R1, Y_trmm,R2 = s2s.find_point(trmm_lat,trmm_lon,print_data[1],print_data[1],print_data[2],print_data[2])
 
-#--------------------------------------------------------------------------------------
+#----------------------------------------------------------------
 # 1. Interpolate TRMM resolution(0.25deg x 0.25deg) to ECMWF resolution(1.5deg x 1.5deg)
-#--------------------------------------------------------------------------------------
+#----------------------------------------------------------------
 print('Keeping orginial resolution: ' + str(keep_original_resolution))
 
 if not keep_original_resolution:
@@ -93,9 +96,9 @@ if print_data!=0:
     X_trmm,R1, Y_trmm,R2 = s2s.find_point(new_lat, new_lon,print_data[1],print_data[1],print_data[2],print_data[2])
 
 
-#-------------------------------------------------------------------------------------
+#----------------------------------------------------------------
 # 2. Repack TRMM daily rainfall to 5 dimensions (week_initial_date:years:days:lat:lon)
-#-------------------------------------------------------------------------------------
+#----------------------------------------------------------------
 trmm_data_repack = np.empty([len(week_initial_date),end_year-start_year+1,days,len(new_lat),len(new_lon)]) #week,year,day,lat,lon
 
 #For each week initial date
@@ -115,22 +118,28 @@ for i_date in range(0,len(week_initial_date)):
             trmm_data_repack[i_date,i_year,i_day,:,:] = trmm_data[time_index+i_day,:,:] #broadcasting ,:,
 
 
-#---------------------------------------------------------------------
+#----------------------------------------------------------------
 # 3. Generating TRMM daily rainfall percentile values
-#---------------------------------------------------------------------
-trmm_climatology_mask = np.empty([len(week_initial_date),len(new_lat),len(new_lon)])
-trmm_climatology_mask = np.percentile(trmm_data_repack, threshold, axis=(1,2)) #axis1:years axis2:7 days in a week
+#----------------------------------------------------------------
+print ('Preparing TRMM weekly rainfall ' + str(threshold) + 'th percentile  mask...')
+trmm_threshold_mask = np.empty([len(week_initial_date),len(new_lat),len(new_lon)])
+trmm_threshold_mask = np.percentile(trmm_data_repack, threshold, axis=(1,2)) #axis1:years axis2:7 days in a week
 
 if print_data !=0:
-    print('TRMM values  threshold')
-    print(trmm_climatology_mask[:, X_trmm, Y_trmm])
+    print('TRMM values for '+ str(threshold)+ ' percentile')
+    print('For location ' + str(print_data[1]) +'N ' +str(print_data[2])  + 'E')
+    print(trmm_threshold_mask[:, X_trmm, Y_trmm])
+else:
+	print ('Mean of TRMM weekly rainfall ' + str(threshold) + 'th percentile mask: ' + str(np.mean(trmm_threshold_mask)))
+print ('Median of TRMM weekly rainfall ' + str(threshold) + 'th percentile mask: ' + str(np.median(trmm_threshold_mask)))
+print ('Done!')
 
-#--------------------------------------------------------------------------------------
+#----------------------------------------------------------------
 # 4. This part is to calculate TRMM # of dry days in a week (climatology/total/anomaly)
-#--------------------------------------------------------------------------------------
+#----------------------------------------------------------------
 
-#Convert based on the TRMM daily 'Rainfall 20th percentile climatology mask' with minimum value of 1mm
-trmm_climatology_mask[trmm_climatology_mask< 1] = 1
+#Convert based on the TRMM daily threshold mask to have a minimum value of 1mm
+trmm_threshold_mask[trmm_threshold_mask< 1] = 1
 
 trmm_total_ec = np.empty([len(week_initial_date),end_year-start_year+1,len(new_lat),len(new_lon)])    #week,year,lat,lon
 trmm_anomaly = np.empty([len(week_initial_date),end_year-start_year+1,len(new_lat),len(new_lon)])
@@ -138,10 +147,11 @@ trmm_anomaly = np.empty([len(week_initial_date),end_year-start_year+1,len(new_la
 
 for i_year in range(0,end_year-start_year+1):
         for i_day in range(0,days):
-            trmm_data_repack[:,i_year,i_day,:,:] = (trmm_data_repack[:,i_year,i_day,:,:] < trmm_climatology_mask).astype(np.int_)
+            trmm_data_repack[:,i_year,i_day,:,:] = (trmm_data_repack[:,i_year,i_day,:,:] < trmm_threshold_mask).astype(np.int_)
 
 if print_data !=0:
-    print('TRMM values dry day or not')
+    print('TRMM dry days')
+    print('For year ' + str(print_data[0])+' location ' + str(print_data[1]) +'N ' +str(print_data[2]) + 'E')
     print(trmm_data_repack[:, print_data[0]-start_year, :, X_trmm, Y_trmm])
 
 #Sum up all 7 days in a week and compress the 'days' axis
@@ -161,10 +171,10 @@ if print_data !=0:
     print('TRMM anomaly values Anomaly')
     print(trmm_anomaly[:, print_data[0]-start_year,  X_trmm, Y_trmm])
 
-#--------------------------------------------------------------------------
+#----------------------------------------------------------------
 # This part is to output all netCDF files 
 # and display TRMM(in ECMWF resolution) rainfall climatology/total/anomaly
-#-------------------------------------------------------------------------
+#----------------------------------------------------------------
 
 if data_output == True:
    #Output TRMM climatology/total/anomaly
@@ -197,6 +207,13 @@ if plot_figure == True:
    start_date = week_initial_date[target_week]
    end_date = start_date[:2] + "%02d"%(int(start_date[-2:])+6)
 
+   #Define the domain for display
+   lat_down = config.getint('Plot','lat_down')
+   lat_up = config.getint('Plot','lat_up')
+   lon_left = config.getint('Plot','lon_left')
+   lon_right = config.getint('Plot','lon_right')
+   grid_lat = config.getint('Plot','grid_lat')
+   grid_lon = config.getint('Plot','grid_lon')
    data_range = [0,7]    #change data range for plotting accordingly
    title_str = 'TRMM Number of Dry Days Climatology' + '\n' + start_date + '-' + end_date
    name_str = plot_dir + 'TRMM_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Climatology_'+version+'.png'
@@ -211,6 +228,8 @@ if plot_figure == True:
    title_str = 'TRMM Number of Dry Days Anomaly' + '\n' + str(target_year) + ' ' + start_date + '-' + end_date
    name_str = plot_dir + 'TRMM_' + str(target_year) + '_' + start_date + '-' + end_date + '_threshold' + str(threshold) + '_Anomaly_'+version+'.png'
    s2s.plot_processing(trmm_anomaly[target_week,target_year-start_year,:,:],new_lat,new_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Anomaly')
+
+print ('Finished!')
 
 
 
