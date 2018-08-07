@@ -16,42 +16,40 @@ import os
 import sys    
 import s2s_utility_prec
 import calendar
+import configparser
+config = configparser.ConfigParser()
+config.read('../../../../code/settings.ini')
 
-# Define data folder
-data_dir = '../../../../data/model/ecmwf/prec/'
 
 
+#-------------------------------------------------------------
 # Initial setup
-# All the initial dates with complete 7-day week in Dec for the 2017 runs
-init_date = ['11-13','11-16','11-20','11-23','11-27','11-30','12-04','12-07','12-11','12-14','12-18','12-21','12-25'] #format needed to read .nc files
-week_initial_date = [4,7,11,14,18,21,25]
-target_month = 12
+#-------------------------------------------------------------
+# These values can be changed in the settings file
+week_initial_date = config.get('Process','week_initial_date').split(',')
+target_month = config.getint('Process','target_month')
+threshold = config.getint('Process','threshold') 
+
 start_year = 1998
 end_year = 2014
 lead_times = 4 #lead_times = 4
 days = 7 #7days = 1week
-
-
 members = 11 #11 ensemble members
-threshold = 30 #change this value for your group project!
 
-#where the data will be saved
+# Define data input folder
+data_dir = '../../../../data/model/ecmwf/prec/'
+#Define data output folder
 ec_output = '../../../../data/model/ecmwf/prec'
 
 
 ## PLOTTING INPUTS
 plot_figure = True
 plot_dir = '../../../../plot/model/' #where the data will be saved
-target_week = 6 # this is the week that plots out for the plots if plotting
-lat_down = -15
-lat_up = 30
-lon_left = 90
-lon_right = 150
-grid_lat = 10
-grid_lon = 10
-##------------------------------------------------------------------------------------------------------
-#                                              Processing
-##------------------------------------------------------------------------------------------------------
+if plot_figure:
+	target_week = config.getint('Plot','target_week')
+##--------------------------------------------------------------
+#                               Processing
+##--------------------------------------------------------------
 
 #Read ECMWF lat/lon
 nc = netCDF4.Dataset(data_dir + 'ecmwf_iri_dec2017_pf.nc')
@@ -60,7 +58,9 @@ ec_lon = nc.variables['X'][:]
 nc.close()
 
 # Create an array to store the repacked daily data based on lead_time 1/2/3/4
-ec_daily = np.empty([lead_times,len(week_initial_date),end_year-start_year+1,days,members,len(ec_lat),len(ec_lon)]) #step,week,year,days,members,lat,lon
+ec_daily = np.zeros([lead_times,len(week_initial_date),end_year-start_year+1,days,members,len(ec_lat),len(ec_lon)]) #step,week,year,days,members,lat,lon
+
+ec_daily = ec_daily - 99999
 
 #-----------------------------------------
 # 1. Combine 10 pf members and 1 cf member
@@ -110,8 +110,9 @@ for i in range(arr_shp[2]-1):
 
 
 #------------------------------------------------------------------
-# 2. Repack according to lead_times, "full" weeks and days' indexes
+# 3. Repack according to lead_times, "full" weeks and days' indexes
 #------------------------------------------------------------------
+print(np.isnan(ec_daily).any())
 count_model_run =0
 for i_date in prec_start:
 
@@ -125,11 +126,10 @@ for i_date in prec_start:
         #Check if forecasted week is within the target month
         if start_date.month == target_month and end_date.month == target_month:
             try:
-                i_week = week_initial_date.index(start_date.day)
+                i_week = week_initial_date.index("%02d"%start_date.month + "%02d"%start_date.day)
             except:
                 print(i_step)
                 print("The date "+str(start_date) +" was not found inthe weeks list. Check the model initdal date list and the weeks list")
-            #i_week = week_initial_date.index("%02d"%start_date.month + "%02d"%start_date.day)
             #For each day
             for i_day in range(0,days):
                 #print ('ilead: ' + str(i_lead))
@@ -142,15 +142,24 @@ ds_pf.close()
 ds_cf.close()
 print ('Done!')
 
+if np.min(ec_daily)<-1000:
+     print('May be missing some values')
+     print('The following lead times:')
+     print(np.where(ec_daily< -1000)[0])
+     print('For the following weeks:')
+     print(np.where(ec_daily< -1000)[1])
+
 ##------------------------------------------------------------------------
 ## 3. Generate the ECMWF daily rainfall percentile values
 ##------------------------------------------------------------------------
 print ('Finding ECMWF daily rainfall '+ str(threshold)+'  percentile ...')
 
-ec_climatology_mask = np.empty([lead_times,len(week_initial_date),len(ec_lat),len(ec_lon)])    #step,week,lat,lon
+ec_threshold_mask = np.empty([lead_times,len(week_initial_date),len(ec_lat),len(ec_lon)])    #step,week,lat,lon
+
+##NOTE THIS LOOP IS DUE TO MEMORY CONSTRAINTS
 for n in range(len(prec_lat)):
-    ec_climatology_mask[:, :, n, :] = np.percentile(ec_daily[:,:, :, :, :, n,:], threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
-#ec_climatology_mask = np.percentile(ec_daily, threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
+    ec_threshold_mask[:, :, n, :] = np.percentile(ec_daily[:,:, :, :, :, n,:], threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
+#ec_threshold_mask = np.percentile(ec_daily, threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
 
 print ('Done!')
 
@@ -166,19 +175,25 @@ ec_day = range(0,days)
 ec_member = range(0,members)
 
 ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_Total_Daily.nc'
-s2s_utility_prec.write_ec_daily(ec_output,ec_filename,ec_daily,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Daily')
+s2s_utility_prec.write_ec_data(ec_output,ec_filename,ec_daily,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Total')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
 ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_threshold' + str(threshold) + '_Climatology_Mask_Daily.nc'
-s2s_utility_prec.write_ec(ec_output,ec_filename,ec_climatology_mask,ec_step,ec_week,ec_year,prec_lat,prec_lon,'Climatology')
+s2s_utility_prec.write_ec(ec_output,ec_filename,ec_threshold_mask,ec_step,ec_week,ec_year,prec_lat,prec_lon,'Climatology')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
-#-------------------------------------------------------------------------------------
-# 3. This part is to output and display ECMWF Rainfall 20th percentile climatology mask
-#-------------------------------------------------------------------------------------
+#---------------------------------------------------------------
+# 3. This part is to output and display ECMWF Rainfall 20th percentile threshold mask
+#---------------------------------------------------------------
 
 if plot_figure:
    #Define the domain for display
+   lat_down = config.getint('Plot','lat_down')
+   lat_up = config.getint('Plot','lat_up')
+   lon_left = config.getint('Plot','lon_left')
+   lon_right = config.getint('Plot','lon_right')
+   grid_lat = config.getint('Plot','grid_lat')
+   grid_lon = config.getint('Plot','grid_lon')
 
    #Plot ECMWF daily Rainfall 20th percentile climatology mask
    for i_step in range(0,lead_times):
@@ -186,6 +201,6 @@ if plot_figure:
        end_date = "%02d"%target_month + "%02d"%(int(start_date)+6)
 
        data_range = [0,10]    #change data range for plotting accordingly
-       title_str = 'ECMWF Daily Rainfall '+str(threshold)+'th Percentile Climatology' + '\n' + str(start_date) + '-' + str(end_date) + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + str(start_date) + '-' + str(end_date) + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_Climatology_Mask.png'
-       s2s_utility_prec.plot_processing(ec_climatology_mask[i_step,target_week,:,:],prec_lat,prec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology_Mask')
+       title_str = 'ECMWF Daily Rainfall '+str(threshold)+'th Percentile' + '\n' + str(start_date) + '-' + str(end_date) + ' (LT' + str(i_step+1) + ')'
+       name_str = plot_dir + 'ECMWF_' + str(start_date) + '-' + str(end_date) + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_threshold_mask.png'
+       s2s_utility_prec.plot_processing(ec_threshold_mask[i_step,target_week,:,:],prec_lat,prec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology_Mask')
