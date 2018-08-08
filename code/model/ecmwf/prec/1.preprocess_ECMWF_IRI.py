@@ -178,7 +178,7 @@ ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_Total_Daily.nc'
 s2s_utility_prec.write_ec_data(ec_output,ec_filename,ec_daily,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Total')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
-ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_threshold' + str(threshold) + '_Climatology_Mask_Daily.nc'
+ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_threshold' + str(threshold) + '_Climatology_Mask_Weekly.nc'
 s2s_utility_prec.write_ec(ec_output,ec_filename,ec_threshold_mask,ec_step,ec_week,ec_year,prec_lat,prec_lon,'Climatology')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
