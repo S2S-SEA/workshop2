@@ -152,14 +152,14 @@ if np.min(ec_daily)<-1000:
 ##------------------------------------------------------------------------
 ## 3. Generate the ECMWF daily rainfall percentile values
 ##------------------------------------------------------------------------
-print ('Finding ECMWF daily rainfall '+ str(threshold)+'  percentile ...')
+print ('Finding ECMWF daily rainfall '+ str(threshold)+'  percentile value...')
 
-ec_threshold_mask = np.empty([lead_times,len(week_initial_date),len(ec_lat),len(ec_lon)])    #step,week,lat,lon
+ec_climatology_mask = np.empty([lead_times,len(week_initial_date),len(ec_lat),len(ec_lon)])    #step,week,lat,lon
 
 ##NOTE THIS LOOP IS DUE TO MEMORY CONSTRAINTS
 for n in range(len(prec_lat)):
-    ec_threshold_mask[:, :, n, :] = np.percentile(ec_daily[:,:, :, :, :, n,:], threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
-#ec_threshold_mask = np.percentile(ec_daily, threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
+    ec_climatology_mask[:, :, n, :] = np.percentile(ec_daily[:,:, :, :, :, n,:], threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
+#ec_climatology_mask = np.percentile(ec_daily, threshold, axis=(2,3,4)) #axis2:years,axis3:7 days in a week,axis4:11 members
 
 print ('Done!')
 
@@ -174,16 +174,16 @@ ec_year = range(start_year,end_year+1)
 ec_day = range(0,days)
 ec_member = range(0,members)
 
-ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_Total_Daily.nc'
+ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_Data_Weekly.nc'
 s2s_utility_prec.write_ec_data(ec_output,ec_filename,ec_daily,ec_step,ec_week,ec_year,ec_day,ec_member,prec_lat,prec_lon,'Total')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
 ec_filename = 'ECMWF_' + calendar.month_abbr[target_month] + '_threshold' + str(threshold) + '_Climatology_Mask_Weekly.nc'
-s2s_utility_prec.write_ec(ec_output,ec_filename,ec_threshold_mask,ec_step,ec_week,ec_year,prec_lat,prec_lon,'Climatology')
+s2s_utility_prec.write_ec(ec_output,ec_filename,ec_climatology_mask,ec_step,ec_week,ec_year,prec_lat,prec_lon,'Climatology')
 print('File saved! ' + ec_filename + ' to directory ' + ec_output)
 
 #---------------------------------------------------------------
-# 3. This part is to output and display ECMWF Rainfall 20th percentile threshold mask
+# 3. This part is to output and display ECMWF Rainfall percentile  mask
 #---------------------------------------------------------------
 
 if plot_figure:
@@ -202,5 +202,5 @@ if plot_figure:
 
        data_range = [0,10]    #change data range for plotting accordingly
        title_str = 'ECMWF Daily Rainfall '+str(threshold)+'th Percentile' + '\n' + str(start_date) + '-' + str(end_date) + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + str(start_date) + '-' + str(end_date) + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_threshold_mask.png'
-       s2s_utility_prec.plot_processing(ec_threshold_mask[i_step,target_week,:,:],prec_lat,prec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology_Mask')
+       name_str = plot_dir + 'ECMWF_' + str(start_date) + '-' + str(end_date) + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_climatology_mask.png'
+       s2s_utility_prec.plot_processing(ec_climatology_mask[i_step,target_week,:,:],prec_lat,prec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology_Mask')
