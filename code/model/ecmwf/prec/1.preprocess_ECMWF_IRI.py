@@ -52,22 +52,21 @@ if plot_figure:
 ##--------------------------------------------------------------
 
 #Read ECMWF lat/lon
-nc = netCDF4.Dataset(data_dir + 'ecmwf_iri_dec2017_pf.nc')
+nc = netCDF4.Dataset(data_dir + 'ecmwf_iri_'+ calendar.month_abbr[target_month] + '2017_pf.nc')
 ec_lat = nc.variables['Y'][:]
 ec_lon = nc.variables['X'][:]
 nc.close()
 
 # Create an array to store the repacked daily data based on lead_time 1/2/3/4
 ec_daily = np.zeros([lead_times,len(week_initial_date),end_year-start_year+1,days,members,len(ec_lat),len(ec_lon)]) #step,week,year,days,members,lat,lon
-
 ec_daily = ec_daily - 99999
 
 #-----------------------------------------
 # 1. Combine 10 pf members and 1 cf member
 #-----------------------------------------
 print("Processing ECMWF file...")
-ds_cf = netCDF4.Dataset(data_dir + 'ecmwf_iri_dec2017_cf.nc') #Load the pf file
-ds_pf = netCDF4.Dataset(data_dir + 'ecmwf_iri_dec2017_pf.nc') #Load the cf file
+ds_cf = netCDF4.Dataset(data_dir + 'ecmwf_iri_' + calendar.month_abbr[target_month] + '2017_cf.nc') #Load the pf file
+ds_pf = netCDF4.Dataset(data_dir + 'ecmwf_iri_'+ calendar.month_abbr[target_month] + '2017_pf.nc') #Load the cf file
 
 # You may want to uncomment the following lines
 # to print out the file and variable information
@@ -112,7 +111,7 @@ for i in range(arr_shp[2]-1):
 #------------------------------------------------------------------
 # 3. Repack according to lead_times, "full" weeks and days' indexes
 #------------------------------------------------------------------
-print(np.isnan(ec_daily).any())
+
 count_model_run =0
 for i_date in prec_start:
 
