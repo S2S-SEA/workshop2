@@ -189,7 +189,7 @@ if plot_figure == True:
 
    #Plot TRMM climatology/total/anomaly
    start_date = week_initial_date[target_week]
-   end_date   = "%02d"%(int(start_date)+13)
+   end_date   = "%02d"%target_month + "%02d"%(int(start_date[-2:])+13)
 
    #Define the domain for display
    lat_down  = config.getint('Plot','lat_down')

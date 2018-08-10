@@ -51,7 +51,7 @@ ec_lat,ec_lon,ec_anomaly       = plot_timeseries.read_anomaly(cur_ec_path,'ECMWF
 #Plot time series
 start_date = week_initial_date[target_week]
 print(start_date)
-end_date   = "%02d"%(int(start_date[-2:])+6)
+end_date   = "%02d"%target_month + "%02d"%(int(start_date[-2:])+6)
 title_str  = 'Number of Dry Days, Anomaly: Time Series' + '\n' + start_date + '-' + end_date
 name_str   = 'ECMWF_DryDays_Timeseries_' + start_date + '-' + end_date + '.png'
 plot_timeseries.plot_fig(trmm_anomaly,ec_anomaly,target_week,start_year,end_year,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,title_str,name_str)

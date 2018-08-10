@@ -186,7 +186,7 @@ if plot_figure:
    #Plot ECMWF daily Rainfall XXth percentile climatology mask
    for i_step in range(0,lead_times):
        start_date = week_initial_date[target_week]
-       end_date   = "%02d"%(int(start_date)+13)
+       end_date   = "%02d"%target_month + "%02d"%(int(start_date[-2:])+13)
 
        data_range = [0,10]
        title_str  = 'ECMWF Daily Rainfall ' + str(threshold) + 'th Percentile' + '\n' + str(start_date) + '-' + str(end_date) + ' (LT' + str(i_step+1) + ')'

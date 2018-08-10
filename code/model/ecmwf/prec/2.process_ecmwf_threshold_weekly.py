@@ -101,7 +101,7 @@ if plot_figure == True:
    #Plot ECMWF NDD climatology/total/anomaly
    for i_step in range(0,lead_times):
        start_date = week_initial_date[target_week]
-       end_date   = "%02d"%(int(start_date[-2:])+6)
+       end_date   = "%02d"%target_month + "%02d"%(int(start_date[-2:])+6)
 
        data_range = [0,days]
        title_str  = 'ECMWF NDD Weekly Climatology' + '\n' + start_date + '-' + end_date + ' (LT' + str(i_step+1) + ')'
