@@ -67,5 +67,5 @@ def plot_fig(trmm_anomaly_0,ec_anomaly_0,target_week,start_year,end_year,lat_0,l
 
     #Add title and save figures
     plt.title(title_str,fontsize=13)
-    plt.savefig(name_str,dpi=200,bbox_inches='tight')
+    plt.savefig('../../../../plot/model/' + name_str,dpi=200,bbox_inches='tight')
 #    plt.close()
