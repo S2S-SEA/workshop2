@@ -107,6 +107,7 @@ for i in range(arr_shp[2]-1):
 #------------------------------------------------------------------
 # 3. Repack according to lead_times, "full" weeks and days' indexes
 #------------------------------------------------------------------
+count_model_run = 0
 for i_date in prec_start:
     ec_time = i_date
 
@@ -123,11 +124,12 @@ for i_date in prec_start:
             except:
                 print(i_step)
                 print("The date "+str(start_date) +" was not found in the weeks list. Check the settings.ini file")
-		
+
             #For each day
             for i_day in range(0,days):
                 ec_daily[i_lead,i_week,:,i_day,:,:,:] = arr_daily[:,count_model_run, 7*(i_lead+1)-days+i_day,:,:,:]
-		
+    count_model_run +=1 #add in the count for the next loop
+
 ds_pf.close()
 ds_cf.close()
 print ('Done!')
@@ -182,14 +184,14 @@ if plot_figure:
    grid_lat  = config.getint('Plot','grid_lat')
    grid_lon  = config.getint('Plot','grid_lon')
 
-   #Plot ECMWF daily Rainfall 20th percentile climatology mask
+   #Plot ECMWF daily Rainfall XXth percentile climatology mask
    for i_step in range(0,lead_times):
        start_date = week_initial_date[target_week]
        end_date   = "%02d"%target_month + "%02d"%(int(start_date)+6)
 
        data_range = [0,10]
-       title_str = 'ECMWF Daily Rainfall ' + str(threshold) + 'th Percentile' + '\n' + str(start_date) + '-' + str(end_date) + ' (LT' + str(i_step+1) + ')'
-       name_str = plot_dir + 'ECMWF_' + str(start_date) + '-' + str(end_date) + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_climatology_mask.png'
+       title_str  = 'ECMWF Daily Rainfall ' + str(threshold) + 'th Percentile' + '\n' + str(start_date) + '-' + str(end_date) + ' (LT' + str(i_step+1) + ')'
+       name_str   = plot_dir + 'ECMWF_' + str(start_date) + '-' + str(end_date) + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_climatology_mask.png'
        s2s_utility_prec.plot_processing(ec_climatology_mask[i_step,target_week,:,:],prec_lat,prec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology_Mask')
 
 print('Finished!')
