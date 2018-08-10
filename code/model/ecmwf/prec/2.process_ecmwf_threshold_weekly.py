@@ -101,7 +101,7 @@ if plot_figure == True:
    #Plot ECMWF NDD climatology/total/anomaly
    for i_step in range(0,lead_times):
        start_date = week_initial_date[target_week]
-       end_date   = "%02d"%target_month + "%02d"%(int(start_date[-2:])+6)
+       end_date   = "%02d"%(int(start_date[-2:])+6)
 
        data_range = [0,days]
        title_str  = 'ECMWF NDD Weekly Climatology' + '\n' + start_date + '-' + end_date + ' (LT' + str(i_step+1) + ')'
@@ -117,5 +117,5 @@ if plot_figure == True:
        title_str  = 'ECMWF NDD Weekly Anomaly' + '\n' + str(target_year) + ' ' + start_date + '-' + end_date + ' (LT' + str(i_step+1) + ')'
        name_str   = plot_dir + 'ECMWF_' + str(target_year) + '_' + start_date + '-' + end_date + '_' + 'LT' + str(i_step+1) + '_threshold' + str(threshold) + '_Anomaly_Weekly.png'
        s2s_utility_prec.plot_processing(ec_anomaly[i_step,target_week,target_year-start_year,:,:],ec_lat_weekly,ec_lon_weekly,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Anomaly')
-        
+
 print('Finished!')

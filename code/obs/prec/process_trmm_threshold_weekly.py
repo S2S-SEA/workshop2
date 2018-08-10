@@ -1,6 +1,6 @@
 '''
-This script loads the TRMM data as downloaded by IRI data library and prepares the number of dry days 
-(total per model week, the climatology, and the anomaly per week). 
+This script loads the TRMM data as downloaded by IRI data library and prepares the number of dry days
+(total per model week, the climatology, and the anomaly per week).
 It can plot either at the TRMM resolution or the ECMWF model resolution.
 '''
 
@@ -20,7 +20,7 @@ config.read('../../../code/settings.ini')
 #These values are changed in the settings.ini file
 week_initial_date = config.get('Process','week_initial_date').split(',')
 target_month      = config.getint('Process','target_month')
-threshold         = config.getint('Process','threshold') 
+threshold         = config.getint('Process','threshold')
 
 trmm_resolution = True #True for TRMM, False for ECMWF
 days            = 7
@@ -48,9 +48,9 @@ plot_dir    = '../../../plot/obs/'
 data_output = False
 plot_figure = False
 
-if plot_figure: 
+if plot_figure:
 #Define target week and year
-	target_week = config.getint('Plot','target_week')   
+	target_week = config.getint('Plot','target_week')
 	target_year = config.getint('Plot','target_year')
 
 #----------------------------------------------------------------
@@ -66,7 +66,7 @@ trmm_time,trmm_lat,trmm_lon,trmm_data = s2s.read_trmm(cur_trmm_path)
 print('Keeping TRMM resolution: ' + str(trmm_resolution))
 
 if not trmm_resolution:
-    
+
     #Read ECMWF data lat/lon
     nc     = netCDF4.Dataset(ec_input + '/' + 'ecmwf_iri_' + calendar.month_abbr[target_month] + '2017_cf.nc')
     ec_lat = nc.variables['Y'][:]
@@ -79,7 +79,7 @@ if not trmm_resolution:
         pi = interpolate.interp2d(trmm_lon,trmm_lat,trmm_data[i,:,:])
         trmm_data_ec_resol[i,:,:] = pi(np.asarray(ec_lon),np.asarray(ec_lat))
     trmm_data = trmm_data_ec_resol
- 
+
 if trmm_resolution:
     new_lat = trmm_lat
     new_lon = trmm_lon
@@ -160,7 +160,7 @@ if print_data !=0:
     print(trmm_anomaly[:,print_data[0]-start_year,X_trmm,Y_trmm])
 
 #----------------------------------------------------------------
-# This part is to output all netCDF files 
+# This part is to output all netCDF files
 # and display TRMM rainfall climatology/total/anomaly
 #----------------------------------------------------------------
 if data_output == True:
@@ -190,7 +190,7 @@ if plot_figure == True:
 
    #Plot TRMM climatology/total/anomaly
    start_date = week_initial_date[target_week]
-   end_date   = start_date[:2] + "%02d"%(int(start_date[-2:])+days-1)
+   end_date   = "%02d"%(int(start_date)+6)
 
    #Define the domain for display
    lat_down  = config.getint('Plot','lat_down')
@@ -216,7 +216,7 @@ if plot_figure == True:
    s2s.plot_processing(trmm_anomaly[target_week,target_year-start_year,:,:],new_lat,new_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Anomaly')
 
    data_range = [0,10]    #change data range for plotting accordingly
-   title_str  = 'TRMM Daily Rainfall '+ str(threshold) + 'th Percentile' + '\n' + str(start_date) + '-' + str(end_date) 
+   title_str  = 'TRMM Daily Rainfall '+ str(threshold) + 'th Percentile' + '\n' + str(start_date) + '-' + str(end_date)
    name_str   = plot_dir + 'TRMM_' + str(start_date) + '-' + str(end_date) +  '_threshold' + str(threshold) + '_climatology_mask' + version + '.png'
    s2s.plot_processing(trmm_climatology_mask[target_week,:,:],new_lat,new_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,data_range,title_str,name_str,'Climatology_Mask')
 

@@ -14,7 +14,7 @@ import netCDF4
 import numpy as np
 import datetime
 import os
-import sys    
+import sys
 import s2s_utility_prec
 import calendar
 import configparser
@@ -27,7 +27,7 @@ config.read('../../../../code/settings.ini')
 #These values can be changed in the settings.ini file
 week_initial_date = config.get('Process','week_initial_date').split(',')
 target_month      = config.getint('Process','target_month')
-threshold         = config.getint('Process','threshold') 
+threshold         = config.getint('Process','threshold')
 
 start_year = 1998
 end_year   = 2014
@@ -112,11 +112,11 @@ for i_date in prec_start:
     ec_time = i_date
 
     #For each model lead time
-    for i_lead in range(0,lead_times): 
+    for i_lead in range(0,lead_times):
         i_step = int(i_lead*7 + 6)
         end_date   = ec_time + datetime.timedelta(days=i_step)
         start_date = end_date - datetime.timedelta(days=6)
-	
+
         #Check if forecasted week is within the target month
         if start_date.month == target_month and end_date.month == target_month:
             try:
@@ -156,7 +156,7 @@ for n in range(len(prec_lat)):
 print('Done!')
 
 #---------------------------------------------------------------
-# This part is to output all netCDF files 
+# This part is to output all netCDF files
 #---------------------------------------------------------------
 ec_step   = range(0,lead_times)
 ec_week   = range(0,len(week_initial_date))
@@ -187,7 +187,7 @@ if plot_figure:
    #Plot ECMWF daily Rainfall XXth percentile climatology mask
    for i_step in range(0,lead_times):
        start_date = week_initial_date[target_week]
-       end_date   = "%02d"%target_month + "%02d"%(int(start_date)+6)
+       end_date   = "%02d"%(int(start_date)+6)
 
        data_range = [0,10]
        title_str  = 'ECMWF Daily Rainfall ' + str(threshold) + 'th Percentile' + '\n' + str(start_date) + '-' + str(end_date) + ' (LT' + str(i_step+1) + ')'
