@@ -6,7 +6,7 @@ It is based on counting the number of dry days shown in the presentation
 '''
 
 ## Dry days example 
-
+import datetime
 Sing_Rain = [13.3, 0, 0, 0, 1,10.7, 0.2]
 
 dry_days_v1= 0	
@@ -24,3 +24,6 @@ for i in range(7):
 if Sing_Rain[i] < 1:	
 		dry_days_v2+= 1	
 print('The number of dry days, version 2: ' + str(dry_days_v2))	
+
+
+print('\n Indentation is important!')
