@@ -109,6 +109,7 @@ for i in range(arr_shp[2]-1):
 count_model_run = 0
 for i_date in prec_start:
     ec_time = i_date
+    print('model start time: ' + str(ec_time))
 
     #For each model lead time
     for i_lead in range(0,lead_times):
@@ -118,15 +119,18 @@ for i_date in prec_start:
 
         #Check if forecasted week is within the target month
         if start_date.month == target_month and end_date.month == target_month:
-            try:
-                i_week = week_initial_date.index("%02d"%start_date.month + "%02d"%start_date.day)
-            except:
-                print(i_step)
-                print("The date "+str(start_date) +" was not found in the weeks list. Check the settings.ini file")
 
-            #For each day
-            for i_day in range(0,days):
-                ec_daily[i_lead,i_week,:,i_day,:,:,:] = arr_daily[:,count_model_run, 7*(i_lead+2)-days+i_day,:,:,:]
+            #Check if the data is in 'week_initial_date' range
+            if str("%02d"%start_date.month + "%02d"%start_date.day) in week_initial_date:
+                i_week = week_initial_date.index("%02d"%start_date.month + "%02d"%start_date.day)
+
+                #For each day
+                for i_day in range(0,days):
+                    #print ('ilead: ' + str(i_lead))
+                    #print ('iweek: ' + str(i_week))
+                    #print ('iday: ' + str(i_day))
+                    #print (7*(i_lead+2)-days+i_day)
+                    ec_daily[i_lead,i_week,:,i_day,:,:,:] = arr_daily[:,count_model_run, 7*(i_lead+2)-days+i_day,:,:,:]
     count_model_run +=1 #add in the count for the next loop
 
 ds_pf.close()

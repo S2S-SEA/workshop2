@@ -14,8 +14,8 @@ target_month = 12
 threshold    = 20
 
 #Process and plot
-process_cora = False
-process_msss = False
+process_cora = True
+process_msss = True
 
 #Define plot folder
 plot_dir  = '../../../../plot/skill_scores/anomaly/'
@@ -80,7 +80,7 @@ if process_cora == True:
        s2s_utility_prec.plot_verification(cora,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'CORA')
 
        #Plot CORA (with TRMM climatology dry mask)
-       cora[trmm_climo > 6] = 99 # apply TRMM climatology dry mask, with dummy value of 99
+       cora[trmm_climo > 12] = 99 # apply TRMM climatology dry mask, with dummy value of 99
 
        title_str = 'NDD in 2-week (Anomaly): CORA' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
        name_str  = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_CORA_BiWeekly_drymask.png'
@@ -106,7 +106,7 @@ if process_msss == True:
        s2s_utility_prec.plot_verification(msss,ec_lat,ec_lon,lat_down,lat_up,lon_left,lon_right,grid_lat,grid_lon,title_str,name_str,'MSSS')
 
        #Plot MSSS (with TRMM climatology dry mask)
-       msss[trmm_climo > 6] = 99 # apply TRMM climatology dry mask, with dummy value of 99
+       msss[trmm_climo > 12] = 99 # apply TRMM climatology dry mask, with dummy value of 99
 
        title_str = 'NDD in 2-week (Anomaly): MSSS' + '\n' + calendar.month_abbr[target_month] + ' (LT' + str(i_step+1) + ') - white areas denote dry climatological mask'
        name_str  = plot_dir + 'ECMWF_' + calendar.month_abbr[target_month] + '_LT' + str(i_step+1) + '_threshold' + str(threshold) + '_MSSS_BiWeekly_drymask.png'

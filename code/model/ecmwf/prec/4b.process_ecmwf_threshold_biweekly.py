@@ -33,8 +33,8 @@ ec_output = '../../../../data/model/ecmwf/prec/'
 plot_dir  = '../../../../plot/model/'
 
 #Choose to output and/or display data
-data_output = False
-plot_figure = False
+data_output = True
+plot_figure = True
 
 #--------------------------------------------------------------------------------------------------
 # 1. Load the two netCDF4 files: 'ECMWF_Data_BiWeekly' and 'Rainfall XXth percentile climatology mask'
