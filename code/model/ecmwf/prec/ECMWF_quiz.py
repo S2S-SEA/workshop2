@@ -5,7 +5,7 @@ Quiz
 print('Welcome to the S2S data structure quiz')
 name = input('What is your name?')
 print('Hi there '+ name + "! Let's play a game!")
-print('I will ask you 10 questions. Mix of Multiple choice and enter yourself')
+print('I will ask you 7 questions. Mix of Multiple choice and enter yourself')
 print('Please keep caps lock on so all answers can be printed in caps')
 print('All dates must be in the format DD-MM-YYYY')
 print('-----------------------------------------------------------------')
@@ -15,10 +15,10 @@ score = 0.0
 print('Question 1: What is the first ECMWF December model run in December 2017?')
 print('A: 01-12-2017')
 print('B: 03-12-2017')
-print('C: 09-12-2017')
+print('C: 04-12-2017')
 print('')
 
-Q1answer = "B"
+Q1answer = "C"
 Q1response = input('Your answer : ')
 
 while (Q1response != Q1answer):
@@ -27,7 +27,7 @@ while (Q1response != Q1answer):
 print('Well done. ECMWF S2S forecasts are produced on Mondays and Thursdays. The first Monday or Thursday in December 2017 was 03-12-2017')
 
 print('')
-print('Question 2: What is the first ECMWF December model run in August 2018?')
+print('Question 2: What is the first ECMWF model run in August 2018?')
 print('A: 01-08-2018')
 print('B: 02-08-2018')
 print('C: 03-08-2018')
@@ -71,35 +71,53 @@ print('Well done. Lead Time 2 starts from the week before first day of the week.
 
 
 print('')
-print('Question 5: I want to get the weekly forecast starting the 13-08-2018. What ECMWF model run should I use to find the lead time 4 forecast?')
-print('Enter the date in the format DD-MM-YYYY')
-print('')
-
-Q1answer = "23-07-2018"
-Q1response = input('Your answer : ')
-
-while (Q1response != Q1answer):
-    print('Sorry, that is incorrect. Try again.  Remember to answer in DD-MM-YYYY.')
-    Q1response = input('Your answer : ')
-print('Well done. Lead Time 4 starts from three weeks before first day of the week.')
-
-print('')
-print('Question 6: I want to look at the skill of the August 2018 model. What is the earliest ECMWF model run I should use if I want to look at the skill up to a 4-week lead time?')
-print('A: 02-08-2018')
-print('B: 02-08-1998')
-print('C: 05-07-1998')
-print('D: 12-07-1998')
-print('E: 12-07-2018')
+print('Question 5: What does hdate refer to?')
+print('A: The model run date')
+print('B: The reforecast date')
+print('C: The lead time')
 
 print('')
 
-Q1answer = "E"
+Q1answer = "B"
 Q1response = input('Your answer : ')
 
 while (Q1response != Q1answer):
     print('Sorry, that is incorrect. Try again.  Remember to answer in CAPITALS.')
     Q1response = input('Your answer : ')
-print('Well done. The first ECMWF model run in August 2018 is 02-08-2018. The 4-week lead time is therefore 12-07-2018.')
+print('Well done. Hdate refers to the hindcast date or reforecast date.')
+
+print('')
+print('Question 6: TRMM data is available for 1998-May 2015. ECMWF forecast data is available from 2015, and ECMWF reforecast data is avaiable from 1995-2017. What years should we study if we want to assess the skill of the reforecast data using TRMM?')
+print('A: 1995-2015')
+print('B: 1995-2017')
+print('C: 1998-2014')
+print('D: 2015-')
+
+print('')
+
+Q1answer = "C"
+Q1response = input('Your answer : ')
+
+while (Q1response != Q1answer):
+    print('Sorry, that is incorrect. Try again.  Remember to answer in CAPITALS.')
+    Q1response = input('Your answer : ')
+print('Well done. The years 1998-2014 are the only complete years when both the ECMWF reforecast and TRMM data are available.')
+
+print('')
+print('Question 7: How many ensemble members does the ECMWF reforecast data have?')
+
+
+print('')
+
+Q1answer = "11"
+Q1response = input('Your answer : ')
+
+while (Q1response != Q1answer):
+    print('Sorry, that is incorrect. Try again.  Remember to answer in numerals only (e.g. "1").')
+    Q1response = input('Your answer : ')
+print('Well done. There are 10 perterbed reforecasts plus one control forecast (total = 11).')
+
+
 
 
 print('Thanks ' +name + ' for playing! Best of luck for the rest of the workshop!')
