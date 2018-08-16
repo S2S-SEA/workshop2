@@ -46,7 +46,7 @@ def plot_fig(trmm_anomaly_0,ec_anomaly_0,target_week,start_year,end_year,lat_0,l
     trmm_anomaly_list = []
     ec_anomaly_list = []
     for i_year in range(0,trmm_anomaly.shape[1]):
-        trmm_anomaly_list.append(numpy.mean(trmm_anomaly_0[target_week,i_year,:,:]))
+        trmm_anomaly_list.append(numpy.mean(trmm_anomaly[target_week,i_year,:,:]))
     for i_step in range(0,ec_anomaly.shape[0]):
         for i_year in range(0,ec_anomaly.shape[2]):
             ec_anomaly_list.append(numpy.mean(ec_anomaly[i_step,target_week,i_year,:,:]))
